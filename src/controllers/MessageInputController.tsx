@@ -27,7 +27,6 @@ export const MessageInputController = ({
   const conversation = useSelectedConversation();
   const { startConversation } = useStartConversation();
   const { sendMessage } = useSendMessage(attachment || undefined);
-
   return (
     <MessageInput
       peerAddress={recipientEnteredValue}
