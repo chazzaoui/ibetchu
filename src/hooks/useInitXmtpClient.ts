@@ -1,6 +1,7 @@
 import { Client, useClient, useCanMessage } from "@xmtp/react-sdk";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useConnect, useSigner } from "wagmi";
+import type { WalletClient } from "wagmi";
+import { useWalletClient } from "wagmi";
 import type { Signer } from "ethers";
 import {
   getAppVersion,
@@ -9,7 +10,7 @@ import {
   loadKeys,
   storeKeys,
 } from "../helpers";
-import { mockConnector } from "../helpers/mockConnector";
+import { walletClientToSigner } from "../lib/ethers";
 
 type ClientStatus = "new" | "created" | "enabled";
 
@@ -48,8 +49,9 @@ const useInitXmtpClient = () => {
   const [status, setStatus] = useState<ClientStatus | undefined>();
   // is there a pending signature?
   const [signing, setSigning] = useState(false);
-  const { data: signer } = useSigner();
-  const { connect: connectWallet } = useConnect();
+  // const { data: signer } = useSigner();
+  const { data: walletClient } = useWalletClient();
+  const signer = walletClientToSigner(walletClient as WalletClient);
 
   /**
    * In order to have more granular control of the onboarding process, we must
@@ -106,9 +108,6 @@ const useInitXmtpClient = () => {
 
   // if this is an app demo, connect to the temporary wallet
   useEffect(() => {
-    if (isAppEnvDemo()) {
-      connectWallet({ connector: mockConnector });
-    }
     if (!client) {
       setStatus(undefined);
     }

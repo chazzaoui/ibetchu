@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useAccount, useDisconnect } from "wagmi";
-import { useConnectModal } from "@rainbow-me/rainbowkit";
+// import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useClient } from "@xmtp/react-sdk";
 import { useNavigate } from "react-router-dom";
 import { OnboardingStep } from "../component-library/components/OnboardingStep/OnboardingStep";
@@ -12,7 +12,7 @@ const OnboardingPage = () => {
   const navigate = useNavigate();
   const resetXmtpState = useXmtpStore((state) => state.resetXmtpState);
   const { address } = useAccount();
-  const { openConnectModal } = useConnectModal();
+  // const { openConnectModal } = useConnectModal();
   const { client, isLoading, status, setStatus, resolveCreate, resolveEnable } =
     useInitXmtpClient();
   const { disconnect: disconnectWagmi, reset: resetWagmi } = useDisconnect();
@@ -52,7 +52,8 @@ const OnboardingPage = () => {
       <OnboardingStep
         step={step}
         isLoading={isLoading}
-        onConnect={openConnectModal}
+        // eslint-disable-next-line no-console
+        onConnect={() => console.log("Add wallet connection functionality")}
         onCreate={resolveCreate}
         onEnable={resolveEnable}
         onDisconnect={() => {

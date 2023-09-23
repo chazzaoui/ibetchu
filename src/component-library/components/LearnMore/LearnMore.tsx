@@ -22,7 +22,7 @@ export const LearnMore = ({
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col justify-center items-center max-w-xl p-4 md:h-full m-0 m-auto">
+    <div className="flex flex-col justify-center items-center max-w-xl p-4 md:h-full m-0">
       <div>
         <h1 className="text-4xl font-bold my-4" data-testid="learn-more-header">
           {t("messages.messages_empty_header")}
