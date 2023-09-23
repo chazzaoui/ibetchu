@@ -15,6 +15,8 @@ import { configureChainsConfig } from "./lib/wagmiClientPrivy";
 // import { isAppEnvDemo } from "./helpers";
 // import { mockConnector } from "./helpers/mockConnector";
 
+const PRIVY_APP_ID = import.meta.env.VITE_PRIVY_APP_ID ?? "";
+
 const DB_VERSION = 1;
 
 const contentTypeConfigs = [attachmentContentTypeConfig];
@@ -50,7 +52,7 @@ const contentTypeConfigs = [attachmentContentTypeConfig];
 createRoot(document.getElementById("root") as HTMLElement).render(
   // <WagmiConfig client={isAppEnvDemo() ? wagmiDemoClient : wagmiClient}>
   //   <RainbowKitProvider chains={chains}>
-  <PrivyProvider appId="your-privy-app-ID">
+  <PrivyProvider appId={PRIVY_APP_ID}>
     <PrivyWagmiConnector wagmiChainsConfig={configureChainsConfig}>
       <StrictMode>
         <XMTPProvider

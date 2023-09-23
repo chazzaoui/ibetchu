@@ -1,7 +1,7 @@
 import type React from "react";
 import { useEffect, useState } from "react";
 import { useClient, useConversations } from "@xmtp/react-sdk";
-import { useDisconnect, useWalletClient, type WalletClient } from "wagmi";
+import { useDisconnect /* useWalletClient, type WalletClient */ } from "wagmi";
 import type { Attachment } from "@xmtp/content-type-remote-attachment";
 import { useNavigate } from "react-router-dom";
 import { useXmtpStore } from "../store/xmtp";
@@ -16,7 +16,7 @@ import useWindowSize from "../hooks/useWindowSize";
 import { ConversationListController } from "../controllers/ConversationListController";
 import { useAttachmentChange } from "../hooks/useAttachmentChange";
 import useSelectedConversation from "../hooks/useSelectedConversation";
-import { walletClientToSigner } from "../lib/ethers";
+import { /* walletClientToSigner, */ useEthersSigner } from "../lib/ethers";
 
 export type address = `0x${string}`;
 
@@ -36,8 +36,8 @@ const Inbox: React.FC<{ children?: React.ReactNode }> = () => {
   }, [client]);
 
   // const { data: signer } = useSigner();
-  const { data: walletClient } = useWalletClient();
-  const signer = walletClientToSigner(walletClient as WalletClient);
+  // const { data: walletClient } = useWalletClient();
+  const signer = useEthersSigner(); // walletClientToSigner(walletClient as WalletClient);
 
   const recipientWalletAddress = useXmtpStore(
     (state) => state.recipientWalletAddress,

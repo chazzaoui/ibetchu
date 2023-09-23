@@ -53,5 +53,7 @@ interface ImportMeta {
     VITE_UNS_TOKEN: string;
     VITE_PROJECT_ID: string;
     VITE_PRIVY_APP_ID: string;
+    VITE_LINK_API_URL: string;
+    VITE_PRIVY_AUTH_URL: string;
   };
 }

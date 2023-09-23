@@ -5,3 +5,5 @@ window.Buffer = window.Buffer ?? Buffer;
 
 // ensure global
 window.global = window.global ?? window;
+
+window.process = window.process ?? { env: {} };

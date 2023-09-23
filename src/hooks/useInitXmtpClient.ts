@@ -1,7 +1,7 @@
 import { Client, useClient, useCanMessage } from "@xmtp/react-sdk";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { WalletClient } from "wagmi";
-import { useWalletClient } from "wagmi";
+// import type { WalletClient } from "wagmi";
+// import { useWalletClient } from "wagmi";
 import type { Signer } from "ethers";
 import {
   getAppVersion,
@@ -10,7 +10,7 @@ import {
   loadKeys,
   storeKeys,
 } from "../helpers";
-import { walletClientToSigner } from "../lib/ethers";
+import { /* walletClientToSigner, */ useEthersSigner } from "../lib/ethers";
 
 type ClientStatus = "new" | "created" | "enabled";
 
@@ -50,8 +50,8 @@ const useInitXmtpClient = () => {
   // is there a pending signature?
   const [signing, setSigning] = useState(false);
   // const { data: signer } = useSigner();
-  const { data: walletClient } = useWalletClient();
-  const signer = walletClientToSigner(walletClient as WalletClient);
+  // const { data: walletClient } = useWalletClient();
+  const signer = useEthersSigner(); // walletClientToSigner(walletClient as WalletClient);
 
   /**
    * In order to have more granular control of the onboarding process, we must
