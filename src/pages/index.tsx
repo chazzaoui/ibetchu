@@ -7,6 +7,7 @@ import { OnboardingStep } from "../component-library/components/OnboardingStep/O
 import { classNames, isAppEnvDemo, wipeKeys } from "../helpers";
 import useInitXmtpClient from "../hooks/useInitXmtpClient";
 import { useXmtpStore } from "../store/xmtp";
+import React from "react";
 
 const OnboardingPage = () => {
   const navigate = useNavigate();

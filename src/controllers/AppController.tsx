@@ -1,6 +1,6 @@
 import "../../.storybook/styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
-import type React from "react";
+import React from "react";
 import { useEffect, useState } from "react";
 import { datadogRum } from "@datadog/browser-rum";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -9,6 +9,8 @@ import { ENVIRONMENT } from "../helpers";
 import Inbox from "../pages/inbox";
 import Index from "../pages/index";
 import Dm from "../pages/dm";
+import CreateBet from "../pages/create-bet";
+import Bet from "../pages/bet";
 
 const AppController: React.FC = () => {
   const [initialized, setInitialized] = useState(false);
@@ -53,6 +55,8 @@ const AppController: React.FC = () => {
         <Route path="/" element={<Index />} />
         <Route path="/inbox" element={<Inbox />} />
         <Route path="/dm/:address" element={<Dm />} />
+        <Route path="/bet/:id" element={<Bet />} />
+        <Route path="/create" element={<CreateBet />} />
       </Routes>
     </Router>
   ) : null;

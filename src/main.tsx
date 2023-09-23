@@ -8,9 +8,13 @@ import { publicProvider } from "wagmi/providers/public";
 import { attachmentContentTypeConfig, XMTPProvider } from "@xmtp/react-sdk";
 import { mainnet } from "wagmi/chains";
 import { infuraProvider } from "wagmi/providers/infura";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { ChakraProvider } from "@chakra-ui/react";
 import App from "./controllers/AppController";
 import { isAppEnvDemo } from "./helpers";
 import { mockConnector } from "./helpers/mockConnector";
+import React from "react";
+import theme from "../theme";
 
 const DB_VERSION = 1;
 
@@ -48,11 +52,13 @@ createRoot(document.getElementById("root") as HTMLElement).render(
   <WagmiConfig client={isAppEnvDemo() ? wagmiDemoClient : wagmiClient}>
     <RainbowKitProvider chains={chains}>
       <StrictMode>
-        <XMTPProvider
-          contentTypeConfigs={contentTypeConfigs}
-          dbVersion={DB_VERSION}>
-          <App />
-        </XMTPProvider>
+        <ChakraProvider theme={theme}>
+          <XMTPProvider
+            contentTypeConfigs={contentTypeConfigs}
+            dbVersion={DB_VERSION}>
+            <App />
+          </XMTPProvider>
+        </ChakraProvider>
       </StrictMode>
     </RainbowKitProvider>
   </WagmiConfig>,
