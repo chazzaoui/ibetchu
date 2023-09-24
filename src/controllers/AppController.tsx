@@ -57,7 +57,7 @@ const AppController: React.FC = () => {
         <Route path="/" element={<Index />} />
         <Route path="/inbox" element={<Inbox />} />
         <Route path="/dm/:address" element={<Dm />} />
-        <Route path="/bet/:id" element={<Bet />} />
+        <Route path="/bet/:address" element={<Bet />} />
         <Route path="/create" element={<CreateBet />} />
         <Route path="/placed-bet/:address" element={<PlacedBet />} />
         <Route path="/settle-bet" element={<SettleBet />} />

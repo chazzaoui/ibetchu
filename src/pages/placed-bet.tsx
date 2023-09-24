@@ -24,7 +24,17 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import CountdownTimer from "../component-library/components/CountDownTimer";
 import { RWebShare } from "react-web-share";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  useContractRead,
+  useContractReads,
+  usePrepareContractWrite,
+  useContractWrite,
+} from "wagmi";
+import config from "../config";
+import { BETCHA_ROUND_FACTORY_CONTRACT } from "../abis/BetchaRoundFactory";
+import { BETCHA_ROUND_CONTRACT } from "../abis/BetchaRound";
+import { BigNumber } from "ethers";
 
 type ValuePiece = Date | null;
 
@@ -32,15 +42,40 @@ type Value = ValuePiece | [ValuePiece, ValuePiece];
 
 const PlacedBet: React.FC = () => {
   const [choice, setChoice] = useState<boolean>();
+  const nav = useNavigate();
   let { address } = useParams();
-  console.log({ address });
-  const toast = useToast();
-  const handleCreateBet = () => {
-    // Log the values or send them to an API for further processing
-    console.log({
-      choice,
-    });
+  const contract = {
+    address: address as `0x${string}`,
+    abi: BETCHA_ROUND_CONTRACT,
   };
+
+  const { data } = useContractReads({
+    contracts: [
+      {
+        ...contract,
+        functionName: "settlementAvailableAt",
+      },
+      {
+        ...contract,
+        functionName: "wagerDeadlineAt",
+      },
+      {
+        ...contract,
+        functionName: "wagerTokenAddress",
+      },
+      {
+        ...contract,
+        functionName: "wagerTokenAmount",
+      },
+      {
+        ...contract,
+        functionName: "metadataURI",
+      },
+    ],
+  });
+
+  const toast = useToast();
+  console.log({ data });
   const targetDate = new Date();
   targetDate.setHours(targetDate.getHours() + 1);
   return (
@@ -104,7 +139,7 @@ const PlacedBet: React.FC = () => {
           <RWebShare
             data={{
               text: "I betcha that",
-              url: "https://on.natgeo.com/2zHaNup",
+              url: `https://on.natgeo.com/bet${address}`,
               title: "Betcha",
             }}
             onClick={() =>

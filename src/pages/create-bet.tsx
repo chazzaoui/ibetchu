@@ -16,7 +16,7 @@ import {
   Stack,
   Heading,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {
@@ -39,19 +39,19 @@ const CreateBet: React.FC = () => {
     abi: BETCHA_ROUND_FACTORY_CONTRACT,
     eventName: "BetchaRoundCreated",
     listener(log) {
-      console.log();
-      nav(`/placed-bet/${log}`);
+      nav(`/bet/${log}`);
     },
   });
   const [amount, setAmount] = useState("");
   const [crypto, setCrypto] = useState("");
   const [betDescription, setBetDescription] = useState("");
   const [dateTime, setDateTime] = useState(Date.now());
+  const [loading, setLoading] = useState(false);
   const [stringTime, setStringTime] = useState("");
   const [timeToBet, setTimeToBet] = useState("");
   const [settler, setSettler] = useState(address);
-  const [ipfsUrl, setIpfsUrl] = useState("");
   const nav = useNavigate();
+  const [ipfsUrl, setIpfsUrl] = useState("");
   const {
     data: tokenInfo,
     isLoading: decimalsLoading,
@@ -67,7 +67,7 @@ const CreateBet: React.FC = () => {
     crypto !== "0x0000000000000000000000000000000000000000"
       ? tokenInfo?.decimals
       : "18";
-  console.log({ dateTime });
+
   const {
     config: createRoundConfig,
     error,
@@ -111,7 +111,8 @@ const CreateBet: React.FC = () => {
     setDateTime(Math.round(unixTimestamp));
   };
 
-  const handleCreateBet = async () => {
+  const handleUpload = async (text: string) => {
+    setLoading(true);
     try {
       const web3Storage = new Web3Storage({
         token: import.meta.env.VITE_WEB3_STORAGE_TOKEN,
@@ -122,13 +123,17 @@ const CreateBet: React.FC = () => {
       const cid = await web3Storage.put([file], { wrapWithDirectory: false });
       const url = `https://ipfs.io/ipfs/${cid}`;
       setIpfsUrl(url);
-      createRound?.();
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  console.log({ error, wth, createRound });
+  const handleCreateBet = async () => {
+    await handleUpload(betDescription);
+  };
+
   return (
     <Flex
       padding={4}
@@ -219,23 +224,22 @@ const CreateBet: React.FC = () => {
                 </FormControl>
 
                 <Button
-                  onClick={handleCreateBet}
+                  onClick={ipfsUrl ? () => createRound?.() : handleCreateBet}
                   backgroundColor={"black"}
                   rounded={"full"}
                   width={"100%"}
-                  isLoading={isWriting || isLoading}
-                  // disabled={
-                  //   isWriting ||
-                  //   isLoading ||
-                  //   !amount ||
-                  //   !settler ||
-                  //   !timeToBet ||
-                  //   !dateTime ||
-                  //   !crypto ||
-                  //   !tokenInfo?.decimals
-                  // }
+                  isLoading={isWriting || isLoading || loading}
+                  disabled={
+                    isWriting ||
+                    isLoading ||
+                    !amount ||
+                    !timeToBet ||
+                    !dateTime ||
+                    !crypto ||
+                    !tokenInfo?.decimals
+                  }
                   colorScheme="blue">
-                  Create Bet
+                  {ipfsUrl ? "Create Bet" : "Save data"}
                 </Button>
               </Flex>
             </TabPanel>
