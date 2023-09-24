@@ -24,7 +24,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import CountdownTimer from "../component-library/components/CountDownTimer";
 import { RWebShare } from "react-web-share";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   useContractRead,
   useContractReads,
@@ -42,6 +42,8 @@ type Value = ValuePiece | [ValuePiece, ValuePiece];
 
 const PlacedBet: React.FC = () => {
   const [choice, setChoice] = useState<boolean>();
+  let { address } = useParams();
+  const nav = useNavigate();
   let { address } = useParams();
   const contract = {
     address: address as `0x${string}`,
@@ -138,7 +140,7 @@ const PlacedBet: React.FC = () => {
           <RWebShare
             data={{
               text: "I betcha that",
-              url: "https://on.natgeo.com/2zHaNup",
+              url: `https://on.natgeo.com/bet${address}`,
               title: "Betcha",
             }}
             onClick={() =>

@@ -20,7 +20,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import CountdownTimer from "../component-library/components/CountDownTimer";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { BETCHA_ROUND_CONTRACT } from "../abis/BetchaRound";
 import {
   usePrepareContractWrite,
@@ -37,7 +37,7 @@ type Value = ValuePiece | [ValuePiece, ValuePiece];
 const Bet: React.FC = () => {
   const [choice, setChoice] = useState<boolean>();
   let { address } = useParams();
-
+  const nav = useNavigate();
   const contract = {
     address: address as `0x${string}`,
     abi: BETCHA_ROUND_CONTRACT,
@@ -53,7 +53,6 @@ const Bet: React.FC = () => {
     enabled: Boolean(choice),
   });
 
-=
   const {
     write: vote,
     isLoading: isWriting,
@@ -62,6 +61,7 @@ const Bet: React.FC = () => {
   } = useContractWrite({
     ...voteConfig,
     onSuccess(data) {
+      nav(`placed-bet/${address}`);
       console.log({ data });
     },
     onError(error) {
