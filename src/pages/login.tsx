@@ -1,8 +1,8 @@
-import LoginButton from "../components/privy/LoginButton";
+import ConnectButton from "../components/privy/ConnectButton";
 
 const Login = () => (
   <div className="h-screen flex justify-center items-center">
-    <LoginButton />
+    <ConnectButton />
   </div>
 );
 
