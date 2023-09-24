@@ -9,6 +9,7 @@ import { ENVIRONMENT } from "../helpers";
 import Inbox from "../pages/inbox";
 import Index from "../pages/index";
 import Dm from "../pages/dm";
+import Login from "../pages/login";
 
 const AppController: React.FC = () => {
   const [initialized, setInitialized] = useState(false);
@@ -53,6 +54,7 @@ const AppController: React.FC = () => {
         <Route path="/" element={<Index />} />
         <Route path="/inbox" element={<Inbox />} />
         <Route path="/dm/:address" element={<Dm />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </Router>
   ) : null;
