@@ -55,17 +55,16 @@ const AppController: React.FC = () => {
   return initialized ? (
     <Router>
       <SwitchNetworks />
-      <Router>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/bet/:address" element={<Bet />} />
-          <Route path="/create" element={<CreateBet />} />
-          <Route path="/placed-bet/:address" element={<PlacedBet />} />
-          <Route path="/settle-bet" element={<SettleBet />} />
-          <Route path="/all-bets" element={<AllBets />} />
-          <Route path="/trashtalk/:address" element={<Trashtalk />} />
-        </Routes>
-      </Router>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/bet/:address" element={<Bet />} />
+        <Route path="/create" element={<CreateBet />} />
+        <Route path="/placed-bet/:address" element={<PlacedBet />} />
+        <Route path="/settle-bet" element={<SettleBet />} />
+        <Route path="/all-bets" element={<AllBets />} />
+        <Route path="/trashtalk/:address" element={<Trashtalk />} />
+      </Routes>
+    </Router>
   ) : null;
 };
 
