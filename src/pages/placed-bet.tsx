@@ -24,6 +24,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import CountdownTimer from "../component-library/components/CountDownTimer";
 import { RWebShare } from "react-web-share";
+import { useParams } from "react-router-dom";
 
 type ValuePiece = Date | null;
 
@@ -31,6 +32,8 @@ type Value = ValuePiece | [ValuePiece, ValuePiece];
 
 const PlacedBet: React.FC = () => {
   const [choice, setChoice] = useState<boolean>();
+  let { address } = useParams();
+  console.log({ address });
   const toast = useToast();
   const handleCreateBet = () => {
     // Log the values or send them to an API for further processing

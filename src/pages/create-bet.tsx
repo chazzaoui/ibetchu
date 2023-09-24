@@ -40,7 +40,7 @@ const CreateBet: React.FC = () => {
     eventName: "BetchaRoundCreated",
     listener(log) {
       console.log();
-      nav(`/placed-bet/${}`);
+      nav(`/placed-bet/${log}`);
     },
   });
   const [amount, setAmount] = useState("");
