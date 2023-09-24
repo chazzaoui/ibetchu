@@ -18,6 +18,8 @@ import {
   Divider,
   Text,
 } from "@chakra-ui/react";
+import { formatUnits } from "viem";
+
 import React, { useEffect, useState } from "react";
 import CountdownTimer from "../component-library/components/CountDownTimer";
 import { useNavigate, useParams } from "react-router-dom";
@@ -28,7 +30,6 @@ import {
   useContractReads,
   useToken,
 } from "wagmi";
-import { BigNumber, ethers } from "ethers";
 
 type ValuePiece = Date | null;
 
@@ -55,7 +56,7 @@ const Bet: React.FC = () => {
 
   const {
     write: vote,
-    isLoading: isWriting,
+    isLoading: isVoting,
     isSuccess,
     error: wth,
   } = useContractWrite({
@@ -72,7 +73,7 @@ const Bet: React.FC = () => {
   const handleCreateBet = () => {
     vote?.();
   };
-  const { data } = useContractReads({
+  const { data, error: getBetsError } = useContractReads({
     contracts: [
       {
         ...contract,
@@ -129,13 +130,14 @@ const Bet: React.FC = () => {
     isLoading: decimalsLoading,
     error: decimalError,
   } = useToken({
-    address: data?.[2],
+    address: data?.[2] as unknown as `0x${string}`,
     enabled: Boolean(data && data?.length > 0),
   });
 
-  console.log({ data });
+  console.log({ wth, error, getBetsError, data });
   const targetDate = new Date();
   targetDate.setHours(targetDate.getHours() + 1);
+
   return (
     <Flex
       padding={4}
@@ -162,9 +164,9 @@ const Bet: React.FC = () => {
           <Heading mb={4}>I bet you</Heading>
           <Flex width={"100%"} justifyContent={"center"} mb={8}>
             <Heading mr={4}>
-              {ethers.utils.formatUnits(
+              {formatUnits(
                 (data?.[3] as BigNumber) ?? 0,
-                tokenInfo?.decimals,
+                tokenInfo?.decimals as number,
               )}
             </Heading>
 
@@ -196,8 +198,8 @@ const Bet: React.FC = () => {
             </Button>
           </Flex>
           <Button
-            disabled={isLoading || isWriting}
-            isLoading={isLoading || isWriting}
+            disabled={isLoading || isVoting}
+            isLoading={isLoading || isVoting}
             backgroundColor={"black"}
             rounded={"full"}
             width={"100%"}

@@ -134,7 +134,7 @@ const CreateBet: React.FC = () => {
   const handleCreateBet = async () => {
     await handleUpload(betDescription);
   };
-
+  console.log({ error, wth, ipfsUrl });
   return (
     <Flex
       padding={4}
