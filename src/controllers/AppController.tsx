@@ -1,5 +1,5 @@
 import "../../.storybook/styles/globals.css";
-import React from "react";
+import React, { useCallback } from "react";
 import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { initialize } from "../helpers/i18n";
@@ -9,6 +9,37 @@ import PlacedBet from "../pages/placed-bet";
 import SettleBet from "../pages/settle-bet";
 import Login from "../pages/login";
 import AllBets from "../pages/all-bets";
+import { configureChainsConfig } from "../lib/wagmiClientPrivy";
+import { Box, Flex, Select } from "@chakra-ui/react";
+import { useWallets } from "@privy-io/react-auth";
+
+function SwitchNetworks() {
+  const chains = configureChainsConfig.chains;
+  const { wallets } = useWallets();
+  const switchNetworks = useCallback(
+    (chainId: number) => {
+      for (const wallet of wallets) {
+        wallet.switchChain(chainId);
+      }
+    },
+    [wallets],
+  );
+
+  return (
+    <Flex mt={4} justifyContent="center">
+      <Box maxWidth="480px">
+        <Select
+          onChange={(event) => {
+            switchNetworks(Number(event.target.value));
+          }}>
+          {chains.map((chain) => (
+            <option value={chain.id}>{chain.name}</option>
+          ))}
+        </Select>
+      </Box>
+    </Flex>
+  );
+}
 
 const AppController: React.FC = () => {
   const [initialized, setInitialized] = useState(false);
@@ -27,7 +58,7 @@ const AppController: React.FC = () => {
         <Route path="/bet/:address" element={<Bet />} />
         <Route path="/create" element={<CreateBet />} />
         <Route path="/placed-bet/:address" element={<PlacedBet />} />
-        <Route path="/settle-bet" element={<SettleBet />} />
+        <Route path="/settle-bet/:address" element={<SettleBet />} />
         <Route path="/all-bets" element={<AllBets />} />
       </Routes>
     </Router>

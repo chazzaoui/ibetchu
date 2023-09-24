@@ -7,6 +7,8 @@ export const GET_ALL_WAGERED = gql`
       tokenAddress
       amount
       contractAddress
+      metadataURI
+      settlementAvailableAt
     }
   }
 `;

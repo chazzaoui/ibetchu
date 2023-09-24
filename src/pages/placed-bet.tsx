@@ -73,7 +73,7 @@ const PlacedBet: React.FC = () => {
   });
 
   const toast = useToast();
-  console.log({ data });
+
   const targetDate = new Date();
   targetDate.setHours(targetDate.getHours() + 1);
   return (

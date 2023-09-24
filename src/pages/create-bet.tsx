@@ -13,8 +13,8 @@ import {
   FormLabel,
   Input,
   Select,
-  Stack,
   Heading,
+  Spinner,
 } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useState } from "react";
 import DatePicker from "react-datepicker";
@@ -24,8 +24,8 @@ import {
   useContractWrite,
   useToken,
   useAccount,
-  useContractEvent,
   useWaitForTransaction,
+  useNetwork,
 } from "wagmi";
 import config from "../config";
 import { BETCHA_ROUND_FACTORY_CONTRACT } from "../abis/BetchaRoundFactory";
@@ -44,11 +44,10 @@ const CreateBet: React.FC = () => {
   const [betDescription, setBetDescription] = useState("");
   const [dateTime, setDateTime] = useState(Date.now());
   const [loading, setLoading] = useState(false);
-  const [stringTime, setStringTime] = useState("");
   const [timeToBet, setTimeToBet] = useState("");
-  const [settler, setSettler] = useState(address);
   const nav = useNavigate();
   const [ipfsUrl, setIpfsUrl] = useState("");
+  const [betData, setBetData] = useState([]);
 
   const {
     data: tokenInfo,
@@ -66,12 +65,16 @@ const CreateBet: React.FC = () => {
       ? tokenInfo?.decimals
       : "18";
 
+  const { chain } = useNetwork();
+  console.log(chain?.network);
   const {
     config: createRoundConfig,
     error,
     isLoading,
   } = usePrepareContractWrite({
-    address: config.addresses["base"]?.BetchaFactory,
+    address:
+      config.addresses[chain?.network as keyof typeof config.addresses]
+        .betchaFactory,
     abi: BETCHA_ROUND_FACTORY_CONTRACT,
     functionName: "createRound",
     args: [
@@ -84,7 +87,9 @@ const CreateBet: React.FC = () => {
       BigInt(Math.floor(dateTime / 1000)),
       ipfsUrl,
     ],
-    enabled: Boolean(amount && timeToBet && dateTime && crypto),
+    enabled: Boolean(
+      amount && timeToBet && dateTime && crypto && chain?.network,
+    ),
   });
 
   const {
@@ -166,10 +171,30 @@ const CreateBet: React.FC = () => {
   } = useQuery(GET_ALL_WAGERED, {
     variables: { gambler: activeWallet?.address },
   });
+  console.log(allWageredBets);
+
+  const handleFetch = async () => {
+    try {
+      const result = await Promise.all(
+        allWageredBets.wageredEvents?.map((item, index) =>
+          fetch(item.metadataURI).then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.text();
+          }),
+        ),
+      );
+      console.log({ result });
+      setBetData(result);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
-    console.log(allWageredBets);
-  }, [allWageredBets]);
+    handleFetch();
+  }, [allWageredBets?.wageredEvents?.length]);
 
   return (
     <Flex
@@ -192,17 +217,32 @@ const CreateBet: React.FC = () => {
           <TabPanels width={"100%"}>
             <TabPanel>
               <div>
-                <h1 className="text-4xl">All Bets</h1>
-                {allWageredBets.map((item) => {
+                {walletLoading ? <Spinner /> : null}
+                {betData.map((data, index) => (
                   <Flex
+                    onClick={() =>
+                      nav(
+                        `/settle-bet/${allWageredBets?.wageredEvents[index].contractAddress}`,
+                      )
+                    }
+                    key={index}
                     padding={4}
-                    justifyContent={"center"}
-                    alignItems={"center"}
-                    flexDirection={"column"}
-                    width={"100%"}>
-                    <Heading></Heading>
-                  </Flex>;
-                })}
+                    justifyContent="center"
+                    alignItems="center"
+                    flexDirection="column"
+                    width="100%">
+                    <Flex
+                      border={"1px"}
+                      borderRadius={"lg"}
+                      width={"100%"}
+                      style={{ cursor: "pointer" }}
+                      padding={8}
+                      justify={"center"}
+                      align={"center"}>
+                      <Heading textAlign={"center"}>{data}</Heading>
+                    </Flex>
+                  </Flex>
+                ))}
               </div>
             </TabPanel>
             <TabPanel>
@@ -231,7 +271,12 @@ const CreateBet: React.FC = () => {
                       value={crypto}
                       onChange={(e) => setCrypto(e.target.value)}>
                       <option value={ethers.ZeroAddress}>Ethereum</option>
-                      <option value="0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA">
+                      <option
+                        value={
+                          config.addresses[
+                            chain?.network as keyof typeof config.addresses
+                          ].usdc
+                        }>
                         USDC
                       </option>
                     </Select>
