@@ -17,6 +17,7 @@ import {
   Heading,
   Divider,
   Text,
+  useToast,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import CountdownTimer from "../component-library/components/CountDownTimer";
@@ -33,6 +34,7 @@ import { BigNumberish, ZeroAddress, ethers } from "ethers";
 import { formatUnits } from "viem";
 import { erc20ABI } from "../abis/erc20ABI";
 import ConnectButton from "../component-library/components/ConnectButton/ConnectButton";
+import { RWebShare } from "react-web-share";
 type ValuePiece = Date | null;
 
 type Value = ValuePiece | [ValuePiece, ValuePiece];
@@ -42,7 +44,7 @@ const Bet: React.FC = () => {
   const [approved, setApproved] = useState(false);
   let { address } = useParams();
   const nav = useNavigate();
-  const { isConnected } = useAccount();
+  const [placedSuccesfull, setPlacedSuccesfull] = useState(false);
   const contract = {
     address: address as `0x${string}`,
     abi: BETCHA_ROUND_CONTRACT,
@@ -105,14 +107,16 @@ const Bet: React.FC = () => {
   } = useContractWrite({
     ...voteConfig,
     onSuccess(data) {
-      nav(`/placed-bet/${address}`);
+      setPlacedSuccesfull(true);
     },
     onError(error) {
       console.error(error.message);
+      setPlacedSuccesfull(false);
     },
   });
 
   const [ipfsData, setIpfsData] = useState("");
+  const toast = useToast();
 
   useEffect(() => {
     // Fetch data from the IPFS URL when ipfsUrl changes
@@ -145,7 +149,7 @@ const Bet: React.FC = () => {
       abi: erc20ABI,
       functionName: "approve",
       args: [address as `0x${string}`, data?.[3].result as any],
-      enabled: Boolean(!ZeroAddress),
+      enabled: Boolean(!isZeroAddress),
     });
 
   const {
@@ -163,8 +167,6 @@ const Bet: React.FC = () => {
     },
   });
 
-  const targetDate = new Date();
-  targetDate.setHours(targetDate.getHours() + 1);
   return (
     <Flex
       padding={4}
@@ -172,9 +174,11 @@ const Bet: React.FC = () => {
       alignItems={"center"}
       flexDirection={"column"}
       width={"100%"}
-      height={"100vh"}>
+      minHeight={"100vh"}>
       <Image marginBottom={8} src="/BETCHA.png" alt="Betcha" />
-      <Heading marginBottom={4}>Bet preview</Heading>
+      <Heading marginBottom={4}>
+        {placedSuccesfull ? "You've bet!" : "Bet preview"}
+      </Heading>
       <Divider marginBottom={8} />
       <Flex
         justifyContent={"center"}
@@ -188,8 +192,28 @@ const Bet: React.FC = () => {
           width={"100%"}
           height={"100%"}
           flexDirection={"column"}>
-          <Heading mb={4}>I bet you</Heading>
-          <Flex width={"100%"} justifyContent={"center"} mb={8}>
+          {!placedSuccesfull ? null : (
+            <Flex marginBottom={8} width={"100%"} justifyContent={"center"}>
+              <Button
+                hidden={choice === true}
+                border={choice ? "1px" : "0px"}
+                backgroundColor={"#F6F6F6"}
+                onClick={() => setChoice(true)}>
+                ✅ YES
+              </Button>
+              <Button
+                hidden={choice === false}
+                border={choice ? "0px" : "1px"}
+                backgroundColor={"#F6F6F6"}
+                onClick={() => setChoice(false)}>
+                ❌ NO
+              </Button>
+            </Flex>
+          )}
+          <Heading hidden={placedSuccesfull} mb={4}>
+            I bet you
+          </Heading>
+          <Flex width={"100%"} justifyContent={"center"} mb={4}>
             <Heading mr={4}>
               {formatUnits(
                 (data?.[3].result as any) ?? 0,
@@ -212,34 +236,64 @@ const Bet: React.FC = () => {
             Settled by {String(data?.[6].result)}
           </Text>
           <Heading mb={8}>My bet:</Heading>
-          <Flex marginBottom={8} width={"100%"} justifyContent={"space-evenly"}>
+          {placedSuccesfull ? null : (
+            <Flex
+              marginBottom={8}
+              width={"100%"}
+              justifyContent={"space-evenly"}>
+              <Button
+                border={choice === true ? "1px" : "0px"}
+                backgroundColor={"#F6F6F6"}
+                onClick={() => setChoice(true)}>
+                ✅ YES
+              </Button>
+              <Button
+                border={choice === false ? "1px" : "0px"}
+                backgroundColor={"#F6F6F6"}
+                onClick={() => setChoice(false)}>
+                ❌ NO
+              </Button>
+            </Flex>
+          )}
+          {placedSuccesfull ? (
+            <RWebShare
+              data={{
+                text: "I betcha that",
+                url: `https://ibetchu.vercel.app/bet${address}`,
+                title: "Betcha",
+              }}
+              onClick={() =>
+                toast({
+                  title: "shared/copied succesfully!!",
+                  status: "success",
+                  duration: 3000,
+                  isClosable: true,
+                })
+              }>
+              <Button
+                backgroundColor={"black"}
+                rounded={"full"}
+                width={"100%"}
+                colorScheme="blue">
+                Copy bet invite link
+              </Button>
+            </RWebShare>
+          ) : (
             <Button
-              border={choice ? "1px" : "0px"}
-              backgroundColor={"#F6F6F6"}
-              onClick={() => setChoice(true)}>
-              ✅ YES
+              disabled={isLoading || isWriting}
+              isLoading={isLoading || isWriting || isApproving}
+              backgroundColor={"black"}
+              rounded={"full"}
+              width={"100%"}
+              onClick={
+                !approved && !isZeroAddress
+                  ? () => approveContractResult?.()
+                  : () => vote?.()
+              }
+              colorScheme="blue">
+              {!approved && !isZeroAddress ? "Approve bet" : "Place Bet"}
             </Button>
-            <Button
-              border={choice ? "0px" : "1px"}
-              backgroundColor={"#F6F6F6"}
-              onClick={() => setChoice(false)}>
-              ❌ NO
-            </Button>
-          </Flex>
-          <Button
-            disabled={isLoading || isWriting}
-            isLoading={isLoading || isWriting || isApproving}
-            backgroundColor={"black"}
-            rounded={"full"}
-            width={"100%"}
-            onClick={
-              !approved && !isZeroAddress
-                ? () => approveContractResult?.()
-                : () => vote?.()
-            }
-            colorScheme="blue">
-            {!approved && !isZeroAddress ? "Approve bet" : "Place Bet"}
-          </Button>
+          )}
         </Flex>
       </Flex>
     </Flex>

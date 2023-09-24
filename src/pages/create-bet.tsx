@@ -81,9 +81,7 @@ const CreateBet: React.FC = () => {
       BigInt(Math.floor(dateTime / 1000)),
       ipfsUrl,
     ],
-    enabled: Boolean(
-      amount && timeToBet && dateTime && crypto && tokenInfo?.decimals,
-    ),
+    enabled: Boolean(amount && timeToBet && dateTime && crypto),
   });
 
   const {
@@ -123,6 +121,7 @@ const CreateBet: React.FC = () => {
       }
     }
   }, [createRoundTxReceipt]);
+  console.log({ error, wth });
   useEffect(() => {
     if (!deployedAddress) return;
     nav(`/bet/${deployedAddress}`);
@@ -153,7 +152,6 @@ const CreateBet: React.FC = () => {
   };
 
   const handleCreateBet = async () => {
-    console.log("Hereee");
     await handleUpload(betDescription);
   };
 

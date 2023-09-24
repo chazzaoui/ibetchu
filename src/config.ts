@@ -26,7 +26,7 @@ type Addresses = Record<
 >;
 const addresses: Addresses = {
   base: {
-    BetchaFactory: "0xb3a2EAB23AdC21eA78e1851Dd4b1316cb2275D9E",
+    BetchaFactory: "0x41e727A4c19EEA4B7D0A079688268F3E74D4F6F0",
   },
 };
 
