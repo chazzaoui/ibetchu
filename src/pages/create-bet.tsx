@@ -87,9 +87,13 @@ const CreateBet: React.FC = () => {
       BigInt(Math.floor(dateTime / 1000)),
       ipfsUrl,
     ],
-    enabled: Boolean(
-      amount && timeToBet && dateTime && crypto && tokenInfo?.decimals,
-    ),
+    onSettled(data, error) {
+      console.log("data:", data);
+      console.log("error:", error);
+    },
+    // enabled: Boolean(
+    //   amount && timeToBet && dateTime && crypto && tokenInfo?.decimals,
+    // ),
   });
 
   const {
@@ -132,6 +136,7 @@ const CreateBet: React.FC = () => {
   };
 
   const handleCreateBet = async () => {
+    console.log("Hereee");
     await handleUpload(betDescription);
   };
 

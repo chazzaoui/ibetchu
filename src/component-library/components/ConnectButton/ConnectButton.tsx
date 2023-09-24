@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 import { shortAddress } from "../../../helpers";
@@ -7,6 +7,12 @@ const ConnectButton = () => {
   const { login, ready, authenticated, logout } = usePrivy();
   const { wallets } = useWallets();
   const { wallet: activeWallet, setActiveWallet } = usePrivyWagmi();
+
+  useEffect(() => {
+    if (!activeWallet) return;
+    activeWallet?.switchChain(8453);
+    console.log(activeWallet);
+  }, [activeWallet]);
 
   if (!ready) return null;
 
