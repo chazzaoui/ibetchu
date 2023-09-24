@@ -25,7 +25,16 @@ export const GET_ALL_WAGERED_PREV = gql`
 `;
 
 export const GET_ALL_MESSAGES_POSTED_IN_CONTRACT = gql`
-  query GetAllMessagesPostedInContract {
+  query GetAllMessagesPostedInContract($contractAddress: String!) {
+    messagePostedEvents(where: { contractAddress: $contractAddress }) {
+      author
+      content
+    }
+  }
+`;
+
+export const GET_ALL_MESSAGES_POSTED_IN_CONTRACT_PREV = gql`
+  query GetAllMessagesPostedInContractPrev {
     messagePostedEvents(
       where: { contractAddress: "0x101729472fb942deee6c5ce20bc010118d5651c0" }
     ) {
