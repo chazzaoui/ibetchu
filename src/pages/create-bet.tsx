@@ -26,6 +26,7 @@ import {
   useAccount,
   useContractEvent,
   useWaitForTransaction,
+  useNetwork,
 } from "wagmi";
 import config from "../config";
 import { BETCHA_ROUND_FACTORY_CONTRACT } from "../abis/BetchaRoundFactory";
@@ -66,12 +67,16 @@ const CreateBet: React.FC = () => {
       ? tokenInfo?.decimals
       : "18";
 
+  const { chain } = useNetwork();
+  console.log(chain?.network);
   const {
     config: createRoundConfig,
     error,
     isLoading,
   } = usePrepareContractWrite({
-    address: config.addresses["base"]?.BetchaFactory,
+    address:
+      config.addresses[chain?.network as keyof typeof config.addresses]
+        .betchaFactory,
     abi: BETCHA_ROUND_FACTORY_CONTRACT,
     functionName: "createRound",
     args: [
@@ -84,7 +89,9 @@ const CreateBet: React.FC = () => {
       BigInt(Math.floor(dateTime / 1000)),
       ipfsUrl,
     ],
-    enabled: Boolean(amount && timeToBet && dateTime && crypto),
+    enabled: Boolean(
+      amount && timeToBet && dateTime && crypto && chain?.network,
+    ),
   });
 
   const {
@@ -166,6 +173,7 @@ const CreateBet: React.FC = () => {
   } = useQuery(GET_ALL_WAGERED, {
     variables: { gambler: activeWallet?.address },
   });
+  console.log(allWageredBets);
 
   useEffect(() => {
     console.log(allWageredBets);
@@ -193,7 +201,7 @@ const CreateBet: React.FC = () => {
             <TabPanel>
               <div>
                 <h1 className="text-4xl">All Bets</h1>
-                {allWageredBets.map((item) => {
+                {allWageredBets?.wageredEvents?.map((item) => {
                   <Flex
                     padding={4}
                     justifyContent={"center"}
@@ -231,7 +239,12 @@ const CreateBet: React.FC = () => {
                       value={crypto}
                       onChange={(e) => setCrypto(e.target.value)}>
                       <option value={ethers.ZeroAddress}>Ethereum</option>
-                      <option value="0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA">
+                      <option
+                        value={
+                          config.addresses[
+                            chain?.network as keyof typeof config.addresses
+                          ].usdc
+                        }>
                         USDC
                       </option>
                     </Select>

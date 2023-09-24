@@ -5,7 +5,7 @@ import { VitePWA, VitePWAOptions } from "vite-plugin-pwa";
 
 const manifestForPlugin: Partial<VitePWAOptions> = {
   registerType: "prompt",
-  includeAssets: ["favicon.ico", "apple-touch-icon.png", "masked-icon.svg"],
+  includeAssets: ["apple-touch-icon.png", "masked-icon.svg"],
   manifest: {
     name: "Betcha",
     short_name: "Betcha",
