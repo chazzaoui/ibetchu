@@ -39,7 +39,6 @@ const CreateBet: React.FC = () => {
     abi: BETCHA_ROUND_FACTORY_CONTRACT,
     eventName: "BetchaRoundCreated",
     listener(log) {
-      console.log();
       nav(`/bet/${log}`);
     },
   });
@@ -67,7 +66,7 @@ const CreateBet: React.FC = () => {
     crypto !== "0x0000000000000000000000000000000000000000"
       ? tokenInfo?.decimals
       : "18";
-  console.log({ dateTime });
+
   const {
     config: createRoundConfig,
     error,
@@ -120,8 +119,8 @@ const CreateBet: React.FC = () => {
         type: "text/plain",
       });
       const cid = await web3Storage.put([file], { wrapWithDirectory: false });
-
-      setIpfsUrl(cid);
+      const url = `https://ipfs.io/ipfs/${cid}`;
+      setIpfsUrl(url);
     } catch (error) {
       console.error(error);
     }
@@ -131,7 +130,6 @@ const CreateBet: React.FC = () => {
     await handleUpload(betDescription);
   };
 
-  console.log({ error, wth, createRound });
   return (
     <Flex
       padding={4}

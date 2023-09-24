@@ -47,7 +47,7 @@ const PlacedBet: React.FC = () => {
     address: address as `0x${string}`,
     abi: BETCHA_ROUND_CONTRACT,
   };
-  console.log({ address });
+
   const { data } = useContractReads({
     contracts: [
       {

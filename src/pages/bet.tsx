@@ -29,7 +29,6 @@ import {
   useToken,
 } from "wagmi";
 import { BigNumber, ethers } from "ethers";
-import { Web3Storage } from "web3.storage";
 
 type ValuePiece = Date | null;
 
@@ -54,7 +53,7 @@ const Bet: React.FC = () => {
     enabled: Boolean(choice),
   });
 
-  console.log({ address });
+=
   const {
     write: vote,
     isLoading: isWriting,
@@ -73,9 +72,7 @@ const Bet: React.FC = () => {
   const handleCreateBet = () => {
     vote?.();
   };
-  const web3Storage = new Web3Storage({
-    token: import.meta.env.VITE_WEB3_STORAGE_TOKEN,
-  });
+
   const { data } = useContractReads({
     contracts: [
       {
@@ -111,27 +108,20 @@ const Bet: React.FC = () => {
   });
 
   const [ipfsData, setIpfsData] = useState("");
-  const getDescription = async () => {
-    const res = await web3Storage.get(data?.[4]);
 
-    console.log(`Got a response! [${res.status}] ${res.statusText}`);
-    if (!res.ok) {
-      throw new Error(
-        `failed to get ${cid} - [${res.status}] ${res.statusText}`,
-      );
-    }
-
-    // unpack File objects from the response
-    const files = await res.files();
-    console.log({ files });
-    for (const file of files) {
-      console.log(`${file.cid} -- ${file.path} -- ${file.size}`);
-    }
-  };
   useEffect(() => {
     // Fetch data from the IPFS URL when ipfsUrl changes
     if (data?.[4]) {
-      getDescription();
+      fetch(data?.[4])
+        .then((response) => {
+          return response.text();
+        })
+        .then((data) => {
+          setIpfsData(data); //
+        })
+        .catch((error) => {
+          console.error("Error fetching data from IPFS:", error);
+        });
     }
   }, [data?.[4]]);
 
