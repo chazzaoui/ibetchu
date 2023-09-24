@@ -1,15 +1,9 @@
 import { Client, useClient, useCanMessage } from "@xmtp/react-sdk";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useConnect, useSigner } from "wagmi";
+import { useConnect } from "wagmi";
 import type { Signer } from "ethers";
-import {
-  getAppVersion,
-  getEnv,
-  isAppEnvDemo,
-  loadKeys,
-  storeKeys,
-} from "../helpers";
-import { mockConnector } from "../helpers/mockConnector";
+import { getAppVersion, getEnv, loadKeys, storeKeys } from "../helpers";
+import { useEthersSigner } from "../lib/ethers";
 
 type ClientStatus = "new" | "created" | "enabled";
 
@@ -48,7 +42,7 @@ const useInitXmtpClient = () => {
   const [status, setStatus] = useState<ClientStatus | undefined>();
   // is there a pending signature?
   const [signing, setSigning] = useState(false);
-  const { data: signer } = useSigner();
+  const signer = useEthersSigner();
   const { connect: connectWallet } = useConnect();
 
   /**
@@ -106,9 +100,6 @@ const useInitXmtpClient = () => {
 
   // if this is an app demo, connect to the temporary wallet
   useEffect(() => {
-    if (isAppEnvDemo()) {
-      connectWallet({ connector: mockConnector });
-    }
     if (!client) {
       setStatus(undefined);
     }
@@ -142,25 +133,19 @@ const useInitXmtpClient = () => {
           // no signatures needed
           setStatus("enabled");
         } else {
-          // demo mode, wallet won't require any signatures
-          if (isAppEnvDemo()) {
-            // resolve client promises
+          // no keys found, but maybe the address has already been created
+          // let's check
+          const canMessage = await canMessageUser(address, clientOptions);
+          if (canMessage) {
+            // resolve client promise
             createResolve();
-            enableResolve();
+            // identity has been created
+            setStatus("created");
           } else {
-            // no keys found, but maybe the address has already been created
-            // let's check
-            const canMessage = await canMessageUser(address, clientOptions);
-            if (canMessage) {
-              // resolve client promise
-              createResolve();
-              // identity has been created
-              setStatus("created");
-            } else {
-              // no identity on the network
-              setStatus("new");
-            }
+            // no identity on the network
+            setStatus("new");
           }
+
           // get client keys
           keys = await Client.getKeys(signer, {
             ...clientOptions,
