@@ -39,10 +39,14 @@ const CreateBet: React.FC = () => {
     address: config.addresses["base"]?.BetchaFactory,
     abi: BETCHA_ROUND_FACTORY_CONTRACT,
     eventName: "BetchaRoundCreated",
-    listener(log) {
-      nav(`/bet/${log}`);
+    listener(logs) {
+      const { args } = logs[0];
+      console.log({ args });
+      contractListener?.();
+      // nav(`/bet/${logs.}`);
     },
   });
+
   const [amount, setAmount] = useState("");
   const [crypto, setCrypto] = useState("");
   const [betDescription, setBetDescription] = useState("");
@@ -87,13 +91,9 @@ const CreateBet: React.FC = () => {
       BigInt(Math.floor(dateTime / 1000)),
       ipfsUrl,
     ],
-    onSettled(data, error) {
-      console.log("data:", data);
-      console.log("error:", error);
-    },
-    // enabled: Boolean(
-    //   amount && timeToBet && dateTime && crypto && tokenInfo?.decimals,
-    // ),
+    enabled: Boolean(
+      amount && timeToBet && dateTime && crypto && tokenInfo?.decimals,
+    ),
   });
 
   const {

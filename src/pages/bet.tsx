@@ -27,51 +27,27 @@ import {
   useContractWrite,
   useContractReads,
   useToken,
+  useAccount,
 } from "wagmi";
-import { BigNumber, ethers } from "ethers";
-
+import { BigNumberish, ZeroAddress, ethers } from "ethers";
+import { formatUnits } from "viem";
+import { erc20ABI } from "../abis/erc20ABI";
+import ConnectButton from "../component-library/components/ConnectButton/ConnectButton";
 type ValuePiece = Date | null;
 
 type Value = ValuePiece | [ValuePiece, ValuePiece];
 
 const Bet: React.FC = () => {
   const [choice, setChoice] = useState<boolean>();
+  const [approved, setApproved] = useState(false);
   let { address } = useParams();
   const nav = useNavigate();
+  const { isConnected } = useAccount();
   const contract = {
     address: address as `0x${string}`,
     abi: BETCHA_ROUND_CONTRACT,
   };
-  const {
-    config: voteConfig,
-    error,
-    isLoading,
-  } = usePrepareContractWrite({
-    ...contract,
-    functionName: "aightBet",
-    args: [choice ? 1 : 0],
-    enabled: Boolean(choice),
-  });
 
-  const {
-    write: vote,
-    isLoading: isWriting,
-    isSuccess,
-    error: wth,
-  } = useContractWrite({
-    ...voteConfig,
-    onSuccess(data) {
-      nav(`placed-bet/${address}`);
-      console.log({ data });
-    },
-    onError(error) {
-      console.error(error.message);
-    },
-  });
-
-  const handleCreateBet = () => {
-    vote?.();
-  };
   const { data } = useContractReads({
     contracts: [
       {
@@ -106,12 +82,43 @@ const Bet: React.FC = () => {
     enabled: Boolean(address),
   });
 
+  const isZeroAddress =
+    data?.[2].result === "0x0000000000000000000000000000000000000000";
+
+  const {
+    config: voteConfig,
+    error: voteConfigError,
+    isLoading,
+  } = usePrepareContractWrite({
+    ...contract,
+    functionName: "aightBet",
+    args: [choice ? 1 : 0],
+    enabled: Boolean(typeof choice === "boolean"),
+    value: isZeroAddress ? (data?.[3].result as any) : 0,
+  });
+
+  const {
+    write: vote,
+    isLoading: isWriting,
+    isSuccess,
+    error: voteError,
+  } = useContractWrite({
+    ...voteConfig,
+    onSuccess(data) {
+      nav(`/placed-bet/${address}`);
+      console.log({ data });
+    },
+    onError(error) {
+      console.error(error.message);
+    },
+  });
+
   const [ipfsData, setIpfsData] = useState("");
 
   useEffect(() => {
     // Fetch data from the IPFS URL when ipfsUrl changes
     if (data?.[4]) {
-      fetch(data?.[4])
+      fetch(data?.[4].result as RequestInfo)
         .then((response) => {
           return response.text();
         })
@@ -129,11 +136,35 @@ const Bet: React.FC = () => {
     isLoading: decimalsLoading,
     error: decimalError,
   } = useToken({
-    address: data?.[2],
-    enabled: Boolean(data && data?.length > 0),
+    address: data?.[2].result as `0x${string}`,
+    enabled: Boolean(data?.[2].result && !isZeroAddress),
   });
 
-  console.log({ data });
+  const { config: approveConfig, error: approveConfigError } =
+    usePrepareContractWrite({
+      address: tokenInfo?.address,
+      abi: erc20ABI,
+      functionName: "approve",
+      args: [address as `0x${string}`, data?.[3].result as any],
+      enabled: Boolean(!ZeroAddress),
+    });
+
+  const {
+    write: approveContractResult,
+    isLoading: isApproving,
+    writeAsync: approveAsync,
+    error: approveError,
+  } = useContractWrite({
+    ...approveConfig,
+    onSuccess() {
+      setApproved(true);
+    },
+    onError() {
+      setApproved(false);
+    },
+  });
+
+  console.log({ voteError, voteConfigError });
   const targetDate = new Date();
   targetDate.setHours(targetDate.getHours() + 1);
   return (
@@ -162,23 +193,25 @@ const Bet: React.FC = () => {
           <Heading mb={4}>I bet you</Heading>
           <Flex width={"100%"} justifyContent={"center"} mb={8}>
             <Heading mr={4}>
-              {ethers.utils.formatUnits(
-                (data?.[3] as BigNumber) ?? 0,
-                tokenInfo?.decimals,
+              {formatUnits(
+                (data?.[3].result as any) ?? 0,
+                !isZeroAddress ? (tokenInfo?.decimals as number) : 18,
               )}
             </Heading>
 
-            <Heading>{tokenInfo?.name}</Heading>
+            <Heading>{!isZeroAddress ? tokenInfo?.name : "ETH"}</Heading>
           </Flex>
           <Heading mb={4}>that</Heading>
 
           <Heading mb={8}>{ipfsData}</Heading>
           <Text fontWeight={"bold"}>Time left to bet:</Text>
           <CountdownTimer
-            targetDate={data?.[1] ? data?.[1]?.toNumber() * 1000 : Date.now()}
+            targetDate={
+              data?.[1].result ? Number(data?.[1]?.result) * 1000 : Date.now()
+            }
           />
-          <Text marginBottom={8} fontWeight={"bold"}>
-            Settled by {data?.[6]}
+          <Text marginBottom={8} marginTop={4} fontWeight={"bold"}>
+            Settled by {String(data?.[6].result)}
           </Text>
           <Heading mb={8}>My bet:</Heading>
           <Flex marginBottom={8} width={"100%"} justifyContent={"space-evenly"}>
@@ -195,16 +228,24 @@ const Bet: React.FC = () => {
               ❌ NO
             </Button>
           </Flex>
-          <Button
-            disabled={isLoading || isWriting}
-            isLoading={isLoading || isWriting}
-            backgroundColor={"black"}
-            rounded={"full"}
-            width={"100%"}
-            onClick={handleCreateBet}
-            colorScheme="blue">
-            Place Bet
-          </Button>
+          {isConnected ? (
+            <ConnectButton />
+          ) : (
+            <Button
+              disabled={isLoading || isWriting}
+              isLoading={isLoading || isWriting || isApproving}
+              backgroundColor={"black"}
+              rounded={"full"}
+              width={"100%"}
+              onClick={
+                !approved && !isZeroAddress
+                  ? () => approveContractResult?.()
+                  : () => vote?.()
+              }
+              colorScheme="blue">
+              {!approved && !isZeroAddress ? "Approve bet" : "Place Bet"}
+            </Button>
+          )}
         </Flex>
       </Flex>
     </Flex>

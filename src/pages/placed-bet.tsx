@@ -137,7 +137,7 @@ const PlacedBet: React.FC = () => {
           <RWebShare
             data={{
               text: "I betcha that",
-              url: `https://on.natgeo.com/bet${address}`,
+              url: `https://ibetchu.vercel.app/bet${address}`,
               title: "Betcha",
             }}
             onClick={() =>
