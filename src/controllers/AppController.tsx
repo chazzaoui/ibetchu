@@ -53,6 +53,7 @@ const AppController: React.FC = () => {
 
   return initialized ? (
     <Router>
+      <SwitchNetworks />
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/bet/:address" element={<Bet />} />
