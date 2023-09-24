@@ -161,8 +161,8 @@ const Bet: React.FC = () => {
           height={"100%"}
           flexDirection={"column"}>
           <Heading mb={4}>I bet you</Heading>
-          <Flex width={"100%"} justifyContent={"space-evenly"} mb={8}>
-            <Heading>
+          <Flex width={"100%"} justifyContent={"center"} mb={8}>
+            <Heading mr={4}>
               {ethers.utils.formatUnits(
                 (data?.[3] as BigNumber) ?? 0,
                 tokenInfo?.decimals,
