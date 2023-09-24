@@ -38,11 +38,20 @@ const SettleBet: React.FC = () => {
   let { address } = useParams();
   const [placedSuccesfull, setPlacedSuccesfull] = useState(false);
   const [ipfsData, setIpfsData] = useState("");
-
   const contract = {
     address: address as `0x${string}`,
     abi: BETCHA_ROUND_CONTRACT,
   };
+
+  const {
+    config: settleConfig,
+    error: settleConfigError,
+    isLoading,
+  } = usePrepareContractWrite({
+    ...contract,
+    functionName: "settle",
+    args: [choice ? 1 : 0],
+  });
 
   const { data } = useContractReads({
     contracts: [
@@ -78,23 +87,9 @@ const SettleBet: React.FC = () => {
     enabled: Boolean(address),
   });
 
-  const isZeroAddress =
-    data?.[2].result === "0x0000000000000000000000000000000000000000";
-
-  const {
-    config: settleConfig,
-    error: settleConfigError,
-    isLoading,
-  } = usePrepareContractWrite({
-    ...contract,
-    functionName: "settle",
-    args: [choice ? 1 : 0],
-  });
-  console.log({ settleConfig });
   const {
     write: settle,
     isLoading: isVoting,
-    isSuccess,
     error: settleError,
   } = useContractWrite({
     ...settleConfig,
@@ -130,7 +125,7 @@ const SettleBet: React.FC = () => {
         });
     }
   }, [data?.[4]]);
-  console.log({ choice });
+
   const targetDate = new Date();
   targetDate.setHours(targetDate.getHours() + 1);
   return (
@@ -141,7 +136,7 @@ const SettleBet: React.FC = () => {
       flexDirection={"column"}
       width={"100%"}
       height={"100vh"}>
-      <Image marginBottom={8} src="./BETCHA.png" alt="Betcha" />
+      <Image marginBottom={8} src="/BETCHA.png" alt="Betcha" />
       <Heading marginBottom={4}>Settle bet</Heading>
       <Divider marginBottom={8} />
       <Flex
