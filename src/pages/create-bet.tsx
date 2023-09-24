@@ -74,7 +74,7 @@ const CreateBet: React.FC = () => {
   } = usePrepareContractWrite({
     address:
       config.addresses[chain?.network as keyof typeof config.addresses]
-        .betchaFactory,
+        ?.betchaFactory,
     abi: BETCHA_ROUND_FACTORY_CONTRACT,
     functionName: "createRound",
     args: [
@@ -275,7 +275,7 @@ const CreateBet: React.FC = () => {
                         value={
                           config.addresses[
                             chain?.network as keyof typeof config.addresses
-                          ].usdc
+                          ]?.usdc
                         }>
                         USDC
                       </option>
