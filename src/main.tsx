@@ -15,13 +15,14 @@ import { isAppEnvDemo } from "./helpers";
 import { mockConnector } from "./helpers/mockConnector";
 import React from "react";
 import theme from "../theme";
+import { base } from "@wagmi/chains";
 
 const DB_VERSION = 1;
 
 const contentTypeConfigs = [attachmentContentTypeConfig];
 
 const { chains, provider, webSocketProvider } = configureChains(
-  [mainnet],
+  [base],
   [
     infuraProvider({ apiKey: import.meta.env.VITE_INFURA_ID ?? "" }),
     publicProvider(),

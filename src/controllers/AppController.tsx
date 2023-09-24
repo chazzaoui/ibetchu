@@ -11,6 +11,8 @@ import Index from "../pages/index";
 import Dm from "../pages/dm";
 import CreateBet from "../pages/create-bet";
 import Bet from "../pages/bet";
+import PlacedBet from "../pages/placed-bet";
+import SettleBet from "../pages/settle-bet";
 
 const AppController: React.FC = () => {
   const [initialized, setInitialized] = useState(false);
@@ -57,6 +59,8 @@ const AppController: React.FC = () => {
         <Route path="/dm/:address" element={<Dm />} />
         <Route path="/bet/:id" element={<Bet />} />
         <Route path="/create" element={<CreateBet />} />
+        <Route path="/placed-bet/:address" element={<PlacedBet />} />
+        <Route path="/settle-bet" element={<SettleBet />} />
       </Routes>
     </Router>
   ) : null;

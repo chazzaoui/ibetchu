@@ -19,13 +19,15 @@ import {
   Text,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import CountdownTimer from "../component-library/components/CountDownTimer";
 
 type ValuePiece = Date | null;
 
 type Value = ValuePiece | [ValuePiece, ValuePiece];
 
-const Bet: React.FC = () => {
+const SettleBet: React.FC = () => {
   const [choice, setChoice] = useState<boolean>();
   const handleCreateBet = () => {
     // Log the values or send them to an API for further processing
@@ -44,7 +46,7 @@ const Bet: React.FC = () => {
       width={"100%"}
       height={"100vh"}>
       <Image marginBottom={8} src="./BETCHA.png" alt="Betcha" />
-      <Heading marginBottom={4}>Bet preview</Heading>
+      <Heading marginBottom={4}>Settle bet</Heading>
       <Divider marginBottom={8} />
       <Flex
         justifyContent={"center"}
@@ -58,25 +60,16 @@ const Bet: React.FC = () => {
           width={"100%"}
           height={"100%"}
           flexDirection={"column"}>
-          <Heading mb={4}>I bet you</Heading>
-          <Flex width={"100%"} justifyContent={"space-evenly"} mb={8}>
-            <Heading>0.005</Heading>
-
-            <Heading>ETH</Heading>
-          </Flex>
-          <Heading mb={4}>that</Heading>
+          <Text fontSize={"3xl"} mb={4}>
+            What was the result for:
+          </Text>
 
           <Heading mb={8}>
             Mel is going to arrive to the venue by the 23rd of September at
             13:00
           </Heading>
-          <Text fontWeight={"bold"}>Time left to bet:</Text>
-          <CountdownTimer targetDate={targetDate} />
-          <Text marginBottom={8} fontWeight={"bold"}>
-            Settled by Charaf
-          </Text>
-          <Heading mb={8}>My bet:</Heading>
-          <Flex marginBottom={8} width={"100%"} justifyContent={"space-evenly"}>
+          <Divider marginBottom={8} />
+          <Flex width={"100%"} justifyContent={"space-evenly"} mb={8}>
             <Button
               border={choice ? "1px" : "0px"}
               backgroundColor={"#F6F6F6"}
@@ -96,12 +89,13 @@ const Bet: React.FC = () => {
             width={"100%"}
             onClick={handleCreateBet}
             colorScheme="blue">
-            Place Bet
+            Confirm result
           </Button>
+          <Text>If you do it wrong, you’ll disappoint your friends 😢</Text>
         </Flex>
       </Flex>
     </Flex>
   );
 };
 
-export default Bet;
+export default SettleBet;
