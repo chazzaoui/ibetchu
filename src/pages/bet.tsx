@@ -116,6 +116,7 @@ const Bet: React.FC = () => {
           return response.text();
         })
         .then((data) => {
+          console.log(data);
           setIpfsData(data); //
         })
         .catch((error) => {

@@ -12,6 +12,7 @@ import AllBets from "../pages/all-bets";
 import { configureChainsConfig } from "../lib/wagmiClientPrivy";
 import { Box, Flex, Select } from "@chakra-ui/react";
 import { useWallets } from "@privy-io/react-auth";
+import Trashtalk from "../pages/trashtalk";
 
 function SwitchNetworks() {
   const chains = configureChainsConfig.chains;
@@ -54,15 +55,17 @@ const AppController: React.FC = () => {
   return initialized ? (
     <Router>
       <SwitchNetworks />
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/bet/:address" element={<Bet />} />
-        <Route path="/create" element={<CreateBet />} />
-        <Route path="/placed-bet/:address" element={<PlacedBet />} />
-        <Route path="/settle-bet/:address" element={<SettleBet />} />
-        <Route path="/all-bets" element={<AllBets />} />
-      </Routes>
-    </Router>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/bet/:address" element={<Bet />} />
+          <Route path="/create" element={<CreateBet />} />
+          <Route path="/placed-bet/:address" element={<PlacedBet />} />
+          <Route path="/settle-bet" element={<SettleBet />} />
+          <Route path="/all-bets" element={<AllBets />} />
+          <Route path="/trashtalk/:address" element={<Trashtalk />} />
+        </Routes>
+      </Router>
   ) : null;
 };
 
