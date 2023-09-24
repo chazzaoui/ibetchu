@@ -9,6 +9,8 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { configureChainsConfig } from "./lib/wagmiClientPrivy";
 import App from "./controllers/AppController";
 import theme from "../theme";
+import { ApolloProvider } from "@apollo/client";
+import { apolloClient } from "./lib/apolloClient";
 
 const PRIVY_APP_ID = import.meta.env.VITE_PRIVY_APP_ID ?? "";
 
@@ -21,11 +23,13 @@ createRoot(document.getElementById("root") as HTMLElement).render(
     <PrivyWagmiConnector wagmiChainsConfig={configureChainsConfig}>
       <StrictMode>
         <ChakraProvider theme={theme}>
-          <XMTPProvider
-            contentTypeConfigs={contentTypeConfigs}
-            dbVersion={DB_VERSION}>
-            <App />
-          </XMTPProvider>
+          <ApolloProvider client={apolloClient}>
+            <XMTPProvider
+              contentTypeConfigs={contentTypeConfigs}
+              dbVersion={DB_VERSION}>
+              <App />
+            </XMTPProvider>
+          </ApolloProvider>
         </ChakraProvider>
       </StrictMode>
     </PrivyWagmiConnector>
