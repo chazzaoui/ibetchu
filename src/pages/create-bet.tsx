@@ -200,10 +200,8 @@ const CreateBet: React.FC = () => {
                     alignItems={"center"}
                     flexDirection={"column"}
                     width={"100%"}>
-                      <Heading>
-                        {item.}
-                      </Heading>
-                    </Flex>;
+                    <Heading></Heading>
+                  </Flex>;
                 })}
               </div>
             </TabPanel>
