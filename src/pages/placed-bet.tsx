@@ -34,7 +34,6 @@ import {
 import config from "../config";
 import { BETCHA_ROUND_FACTORY_CONTRACT } from "../abis/BetchaRoundFactory";
 import { BETCHA_ROUND_CONTRACT } from "../abis/BetchaRound";
-import { BigNumber } from "ethers";
 
 type ValuePiece = Date | null;
 
