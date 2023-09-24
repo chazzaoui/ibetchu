@@ -106,7 +106,6 @@ const Bet: React.FC = () => {
     ...voteConfig,
     onSuccess(data) {
       nav(`/placed-bet/${address}`);
-      console.log({ data });
     },
     onError(error) {
       console.error(error.message);
@@ -164,7 +163,6 @@ const Bet: React.FC = () => {
     },
   });
 
-  console.log({ voteError, voteConfigError });
   const targetDate = new Date();
   targetDate.setHours(targetDate.getHours() + 1);
   return (
@@ -228,24 +226,20 @@ const Bet: React.FC = () => {
               ❌ NO
             </Button>
           </Flex>
-          {isConnected ? (
-            <ConnectButton />
-          ) : (
-            <Button
-              disabled={isLoading || isWriting}
-              isLoading={isLoading || isWriting || isApproving}
-              backgroundColor={"black"}
-              rounded={"full"}
-              width={"100%"}
-              onClick={
-                !approved && !isZeroAddress
-                  ? () => approveContractResult?.()
-                  : () => vote?.()
-              }
-              colorScheme="blue">
-              {!approved && !isZeroAddress ? "Approve bet" : "Place Bet"}
-            </Button>
-          )}
+          <Button
+            disabled={isLoading || isWriting}
+            isLoading={isLoading || isWriting || isApproving}
+            backgroundColor={"black"}
+            rounded={"full"}
+            width={"100%"}
+            onClick={
+              !approved && !isZeroAddress
+                ? () => approveContractResult?.()
+                : () => vote?.()
+            }
+            colorScheme="blue">
+            {!approved && !isZeroAddress ? "Approve bet" : "Place Bet"}
+          </Button>
         </Flex>
       </Flex>
     </Flex>
