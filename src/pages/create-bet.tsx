@@ -46,6 +46,7 @@ const CreateBet: React.FC = () => {
   const [crypto, setCrypto] = useState("");
   const [betDescription, setBetDescription] = useState("");
   const [dateTime, setDateTime] = useState(Date.now());
+  const [loading, setLoading] = useState(false);
   const [stringTime, setStringTime] = useState("");
   const [timeToBet, setTimeToBet] = useState("");
   const [settler, setSettler] = useState(address);
@@ -111,6 +112,7 @@ const CreateBet: React.FC = () => {
   };
 
   const handleUpload = async (text: string) => {
+    setLoading(true);
     try {
       const web3Storage = new Web3Storage({
         token: import.meta.env.VITE_WEB3_STORAGE_TOKEN,
@@ -123,6 +125,8 @@ const CreateBet: React.FC = () => {
       setIpfsUrl(url);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -224,17 +228,16 @@ const CreateBet: React.FC = () => {
                   backgroundColor={"black"}
                   rounded={"full"}
                   width={"100%"}
-                  isLoading={isWriting || isLoading}
-                  // disabled={
-                  //   isWriting ||
-                  //   isLoading ||
-                  //   !amount ||
-                  //   !settler ||
-                  //   !timeToBet ||
-                  //   !dateTime ||
-                  //   !crypto ||
-                  //   !tokenInfo?.decimals
-                  // }
+                  isLoading={isWriting || isLoading || loading}
+                  disabled={
+                    isWriting ||
+                    isLoading ||
+                    !amount ||
+                    !timeToBet ||
+                    !dateTime ||
+                    !crypto ||
+                    !tokenInfo?.decimals
+                  }
                   colorScheme="blue">
                   {ipfsUrl ? "Create Bet" : "Save data"}
                 </Button>
