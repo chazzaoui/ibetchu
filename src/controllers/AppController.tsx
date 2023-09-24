@@ -66,7 +66,6 @@ const AppController: React.FC = () => {
           <Route path="/trashtalk/:address" element={<Trashtalk />} />
         </Routes>
       </Router>
-    </>
   ) : null;
 };
 
