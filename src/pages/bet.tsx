@@ -1,19 +1,7 @@
 import {
-  Container,
   Flex,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
   Image,
-  Box,
   Button,
-  FormControl,
-  FormLabel,
-  Input,
-  Select,
-  Stack,
   Heading,
   Divider,
   Text,
@@ -30,6 +18,7 @@ import {
   useToken,
   useAccount,
 } from "wagmi";
+import { usePrivy } from "@privy-io/react-auth";
 import { BigNumberish, ZeroAddress, ethers } from "ethers";
 import { formatUnits } from "viem";
 import { erc20ABI } from "../abis/erc20ABI";
@@ -45,6 +34,7 @@ const Bet: React.FC = () => {
   let { address } = useParams();
   const nav = useNavigate();
   const [placedSuccesfull, setPlacedSuccesfull] = useState(false);
+  const { authenticated } = usePrivy();
   const contract = {
     address: address as `0x${string}`,
     abi: BETCHA_ROUND_CONTRACT,
@@ -95,7 +85,7 @@ const Bet: React.FC = () => {
     ...contract,
     functionName: "aightBet",
     args: [choice ? 1 : 0],
-    enabled: Boolean(typeof choice === "boolean"),
+    enabled: Boolean(typeof choice === "boolean" && authenticated),
     value: isZeroAddress ? (data?.[3].result as any) : 0,
   });
 
@@ -150,7 +140,7 @@ const Bet: React.FC = () => {
       abi: erc20ABI,
       functionName: "approve",
       args: [address as `0x${string}`, data?.[3].result as any],
-      enabled: Boolean(!isZeroAddress),
+      enabled: Boolean(!isZeroAddress && authenticated),
     });
 
   const {

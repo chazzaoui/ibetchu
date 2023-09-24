@@ -13,8 +13,8 @@ import {
   FormLabel,
   Input,
   Select,
-  Stack,
   Heading,
+  Spinner,
 } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useState } from "react";
 import DatePicker from "react-datepicker";
@@ -24,7 +24,6 @@ import {
   useContractWrite,
   useToken,
   useAccount,
-  useContractEvent,
   useWaitForTransaction,
   useNetwork,
 } from "wagmi";
@@ -45,11 +44,10 @@ const CreateBet: React.FC = () => {
   const [betDescription, setBetDescription] = useState("");
   const [dateTime, setDateTime] = useState(Date.now());
   const [loading, setLoading] = useState(false);
-  const [stringTime, setStringTime] = useState("");
   const [timeToBet, setTimeToBet] = useState("");
-  const [settler, setSettler] = useState(address);
   const nav = useNavigate();
   const [ipfsUrl, setIpfsUrl] = useState("");
+  const [betData, setBetData] = useState([]);
 
   const {
     data: tokenInfo,
@@ -76,7 +74,7 @@ const CreateBet: React.FC = () => {
   } = usePrepareContractWrite({
     address:
       config.addresses[chain?.network as keyof typeof config.addresses]
-        .betchaFactory,
+        ?.betchaFactory,
     abi: BETCHA_ROUND_FACTORY_CONTRACT,
     functionName: "createRound",
     args: [
@@ -175,9 +173,28 @@ const CreateBet: React.FC = () => {
   });
   console.log(allWageredBets);
 
+  const handleFetch = async () => {
+    try {
+      const result = await Promise.all(
+        allWageredBets.wageredEvents?.map((item, index) =>
+          fetch(item.metadataURI).then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.text();
+          }),
+        ),
+      );
+      console.log({ result });
+      setBetData(result);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
-    console.log(allWageredBets);
-  }, [allWageredBets]);
+    handleFetch();
+  }, [allWageredBets?.wageredEvents?.length]);
 
   return (
     <Flex
@@ -200,17 +217,32 @@ const CreateBet: React.FC = () => {
           <TabPanels width={"100%"}>
             <TabPanel>
               <div>
-                <h1 className="text-4xl">All Bets</h1>
-                {allWageredBets?.wageredEvents?.map((item) => {
+                {walletLoading ? <Spinner /> : null}
+                {betData.map((data, index) => (
                   <Flex
+                    onClick={() =>
+                      nav(
+                        `/settle-bet/${allWageredBets?.wageredEvents[index].contractAddress}`,
+                      )
+                    }
+                    key={index}
                     padding={4}
-                    justifyContent={"center"}
-                    alignItems={"center"}
-                    flexDirection={"column"}
-                    width={"100%"}>
-                    <Heading></Heading>
-                  </Flex>;
-                })}
+                    justifyContent="center"
+                    alignItems="center"
+                    flexDirection="column"
+                    width="100%">
+                    <Flex
+                      border={"1px"}
+                      borderRadius={"lg"}
+                      width={"100%"}
+                      style={{ cursor: "pointer" }}
+                      padding={8}
+                      justify={"center"}
+                      align={"center"}>
+                      <Heading textAlign={"center"}>{data}</Heading>
+                    </Flex>
+                  </Flex>
+                ))}
               </div>
             </TabPanel>
             <TabPanel>
@@ -243,7 +275,7 @@ const CreateBet: React.FC = () => {
                         value={
                           config.addresses[
                             chain?.network as keyof typeof config.addresses
-                          ].usdc
+                          ]?.usdc
                         }>
                         USDC
                       </option>

@@ -53,7 +53,7 @@ const AppController: React.FC = () => {
   }, []);
 
   return initialized ? (
-    <>
+    <Router>
       <SwitchNetworks />
       <Router>
         <Routes>
