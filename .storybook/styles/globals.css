@@ -10,3 +10,43 @@
 .interweave-content > span > span {
   @apply ml-1;
 }
+
+@font-face {
+  font-family: "Recoleta-Bold";
+  src: url("../../public/fonts/Recoleta-Bold.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Inter-SemiBold";
+  src: url("../../public/fonts/Inter-SemiBold.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Recoleta-SemiBold";
+  src: url("../../public/fonts/Recoleta-SemiBold.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Inter-Regular";
+  src: url("../../public/fonts/Inter-Regular.ttf") format("truetype");
+}
+
+.Recoleta-Bold {
+  font-family: Recoleta-Bold, sans-serif; /* Use a fallback font-family */
+  font-display: swap;
+}
+
+.Recoleta-SemiBold {
+  font-family: Recoleta-SemiBold, sans-serif; /* Use a fallback font-family */
+  font-display: swap;
+}
+
+.Inter-SemiBold {
+  font-family: Inter-SemiBold, sans-serif; /* Use a fallback font-family */
+  font-display: swap;
+}
+
+.Inter-Regular {
+  font-family: Inter-Regular, sans-serif; /* Use a fallback font-family */
+  font-display: swap;
+}

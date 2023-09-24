@@ -52,5 +52,9 @@ interface ImportMeta {
     VITE_GOOGLE_TAG_ID: string | undefined;
     VITE_UNS_TOKEN: string;
     VITE_PROJECT_ID: string;
+    VITE_PRIVY_APP_ID: string;
+    VITE_LINK_API_URL: string;
+    VITE_PRIVY_AUTH_URL: string;
+    VITE_ALCHEMY_API_KEY_BASE_MAINNET: string;
   };
 }
