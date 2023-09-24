@@ -72,7 +72,6 @@ const Bet: React.FC = () => {
   const handleCreateBet = () => {
     vote?.();
   };
-
   const { data } = useContractReads({
     contracts: [
       {
