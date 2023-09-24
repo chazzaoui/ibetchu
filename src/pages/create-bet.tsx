@@ -24,6 +24,7 @@ import {
   useContractWrite,
   useToken,
   useAccount,
+  useContractEvent,
 } from "wagmi";
 import config from "../config";
 import { BETCHA_ROUND_FACTORY_CONTRACT } from "../abis/BetchaRoundFactory";
@@ -32,13 +33,23 @@ import { useNavigate } from "react-router-dom";
 import { Web3Storage } from "web3.storage";
 
 const CreateBet: React.FC = () => {
+  const { address } = useAccount();
+  const contractListener = useContractEvent({
+    address: config.addresses["base"]?.BetchaFactory,
+    abi: BETCHA_ROUND_FACTORY_CONTRACT,
+    eventName: "BetchaRoundCreated",
+    listener(log) {
+      console.log();
+      nav(`/placed-bet/${}`);
+    },
+  });
   const [amount, setAmount] = useState("");
   const [crypto, setCrypto] = useState("");
   const [betDescription, setBetDescription] = useState("");
   const [dateTime, setDateTime] = useState(Date.now());
   const [stringTime, setStringTime] = useState("");
   const [timeToBet, setTimeToBet] = useState("");
-  const [settler, setSettler] = useState("");
+  const [settler, setSettler] = useState(address);
   const [ipfsUrl, setIpfsUrl] = useState("");
   const nav = useNavigate();
   const {
@@ -56,9 +67,7 @@ const CreateBet: React.FC = () => {
     crypto !== "0x0000000000000000000000000000000000000000"
       ? tokenInfo?.decimals
       : "18";
-
-  const { address } = useAccount();
-
+  console.log({ dateTime });
   const {
     config: createRoundConfig,
     error,
@@ -73,17 +82,12 @@ const CreateBet: React.FC = () => {
         ? ethers.utils.parseUnits(amount, tokenDecimals ?? 0)
         : ethers.utils.parseUnits("0", tokenDecimals ?? 0),
       [address!],
-      BigNumber.from(Date.now() + Number(timeToBet) * 60),
-      BigNumber.from(dateTime),
+      BigNumber.from(Math.floor(Date.now() / 1000) + Number(timeToBet) * 60),
+      BigNumber.from(Math.floor(dateTime / 1000)),
       ipfsUrl,
     ],
     enabled: Boolean(
-      amount &&
-        settler &&
-        timeToBet &&
-        dateTime &&
-        crypto &&
-        tokenInfo?.decimals,
+      amount && timeToBet && dateTime && crypto && tokenInfo?.decimals,
     ),
   });
 
@@ -96,7 +100,6 @@ const CreateBet: React.FC = () => {
     ...createRoundConfig,
     onSuccess(data) {
       console.log({ data });
-      nav(`./placed-bet/${data.hash}`);
     },
     onError(error) {
       console.error(error.message);
@@ -104,33 +107,28 @@ const CreateBet: React.FC = () => {
   });
 
   const handleDate = (date: any) => {
-    const unixTimestamp = new Date(date).getTime() / 1000;
-    console.log(Math.round(unixTimestamp));
+    const unixTimestamp = new Date(date).getTime();
     setDateTime(Math.round(unixTimestamp));
   };
 
   const handleCreateBet = async () => {
-    // Log the values or send them to an API for further processing
-    console.log({
-      amount,
-      crypto,
-      betDescription,
-      dateTime,
-      timeToBet,
-      settler,
-    });
-    const web3Storage = new Web3Storage({
-      token: import.meta.env.VITE_WEB3_STORAGE_TOKEN,
-    });
-    const file = new File([betDescription], "betDescription.txt", {
-      type: "text/plain",
-    });
-    const cid = await web3Storage.put([file], { wrapWithDirectory: false });
-    const url = `https://ipfs.io/ipfs/${cid}`;
-    setIpfsUrl(url);
-    createRound?.();
+    try {
+      const web3Storage = new Web3Storage({
+        token: import.meta.env.VITE_WEB3_STORAGE_TOKEN,
+      });
+      const file = new File([betDescription], "betDescription.txt", {
+        type: "text/plain",
+      });
+      const cid = await web3Storage.put([file], { wrapWithDirectory: false });
+      const url = `https://ipfs.io/ipfs/${cid}`;
+      setIpfsUrl(url);
+      createRound?.();
+    } catch (error) {
+      console.error(error);
+    }
   };
-  console.log({ error, wth });
+
+  console.log({ error, wth, createRound });
   return (
     <Flex
       padding={4}
@@ -217,11 +215,7 @@ const CreateBet: React.FC = () => {
 
                 <FormControl mb={8}>
                   <FormLabel>Who Will Settle It</FormLabel>
-                  <Input
-                    placeholder="Enter settler"
-                    value={settler || address}
-                    onChange={(e) => setSettler(e.target.value)}
-                  />
+                  <Input value={address} />
                 </FormControl>
 
                 <Button
