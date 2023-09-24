@@ -42,7 +42,6 @@ type Value = ValuePiece | [ValuePiece, ValuePiece];
 
 const PlacedBet: React.FC = () => {
   const [choice, setChoice] = useState<boolean>();
-  let { address } = useParams();
   const nav = useNavigate();
   let { address } = useParams();
   const contract = {
