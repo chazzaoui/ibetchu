@@ -33,6 +33,9 @@ import { ethers } from "ethers";
 import { useNavigate } from "react-router-dom";
 import { Web3Storage } from "web3.storage";
 import { parseUnits, decodeEventLog } from "viem";
+import { GET_ALL_WAGERED } from "../graphql/queries";
+import { useQuery } from "@apollo/client";
+import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 
 const CreateBet: React.FC = () => {
   const { address } = useAccount();
@@ -121,7 +124,7 @@ const CreateBet: React.FC = () => {
       }
     }
   }, [createRoundTxReceipt]);
-  console.log({ error, wth });
+
   useEffect(() => {
     if (!deployedAddress) return;
     nav(`/bet/${deployedAddress}`);
@@ -155,6 +158,19 @@ const CreateBet: React.FC = () => {
     await handleUpload(betDescription);
   };
 
+  const { wallet: activeWallet, setActiveWallet } = usePrivyWagmi();
+  const {
+    loading: walletLoading,
+    error: walletError,
+    data: allWageredBets,
+  } = useQuery(GET_ALL_WAGERED, {
+    variables: { gambler: activeWallet?.address },
+  });
+
+  useEffect(() => {
+    console.log(allWageredBets);
+  }, [allWageredBets]);
+
   return (
     <Flex
       padding={4}
@@ -175,7 +191,21 @@ const CreateBet: React.FC = () => {
 
           <TabPanels width={"100%"}>
             <TabPanel>
-              <p>one!</p>
+              <div>
+                <h1 className="text-4xl">All Bets</h1>
+                {allWageredBets.map((item) => {
+                  <Flex
+                    padding={4}
+                    justifyContent={"center"}
+                    alignItems={"center"}
+                    flexDirection={"column"}
+                    width={"100%"}>
+                      <Heading>
+                        {item.}
+                      </Heading>
+                    </Flex>;
+                })}
+              </div>
             </TabPanel>
             <TabPanel>
               <Flex

@@ -3,9 +3,6 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { initialize } from "../helpers/i18n";
-import Inbox from "../pages/inbox";
-import Index from "../pages/index";
-import Dm from "../pages/dm";
 import CreateBet from "../pages/create-bet";
 import Bet from "../pages/bet";
 import PlacedBet from "../pages/placed-bet";
@@ -26,10 +23,7 @@ const AppController: React.FC = () => {
   return initialized ? (
     <Router>
       <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/inbox" element={<Inbox />} />
-        <Route path="/dm/:address" element={<Dm />} />
+        <Route path="/" element={<Login />} />
         <Route path="/bet/:address" element={<Bet />} />
         <Route path="/create" element={<CreateBet />} />
         <Route path="/placed-bet/:address" element={<PlacedBet />} />
