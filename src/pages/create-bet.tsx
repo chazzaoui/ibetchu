@@ -16,7 +16,7 @@ import {
   Stack,
   Heading,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {
@@ -25,28 +25,17 @@ import {
   useToken,
   useAccount,
   useContractEvent,
+  useWaitForTransaction,
 } from "wagmi";
 import config from "../config";
 import { BETCHA_ROUND_FACTORY_CONTRACT } from "../abis/BetchaRoundFactory";
 import { ethers } from "ethers";
 import { useNavigate } from "react-router-dom";
 import { Web3Storage } from "web3.storage";
-import { parseUnits } from "viem";
+import { parseUnits, decodeEventLog } from "viem";
 
 const CreateBet: React.FC = () => {
   const { address } = useAccount();
-  const contractListener = useContractEvent({
-    address: config.addresses["base"]?.BetchaFactory,
-    abi: BETCHA_ROUND_FACTORY_CONTRACT,
-    eventName: "BetchaRoundCreated",
-    listener(logs) {
-      const { args } = logs[0];
-      console.log({ args });
-      contractListener?.();
-      // nav(`/bet/${logs.}`);
-    },
-  });
-
   const [amount, setAmount] = useState("");
   const [crypto, setCrypto] = useState("");
   const [betDescription, setBetDescription] = useState("");
@@ -57,6 +46,7 @@ const CreateBet: React.FC = () => {
   const [settler, setSettler] = useState(address);
   const nav = useNavigate();
   const [ipfsUrl, setIpfsUrl] = useState("");
+
   const {
     data: tokenInfo,
     isLoading: decimalsLoading,
@@ -101,6 +91,7 @@ const CreateBet: React.FC = () => {
     isLoading: isWriting,
     isSuccess,
     error: wth,
+    data: createRoundTxHash,
   } = useContractWrite({
     ...createRoundConfig,
     onSuccess(data) {
@@ -110,6 +101,32 @@ const CreateBet: React.FC = () => {
       console.error(error.message);
     },
   });
+
+  // Get address of deployed contract
+  const { data: createRoundTxReceipt } = useWaitForTransaction({
+    hash: createRoundTxHash?.hash!,
+  });
+  const deployedAddress = useMemo(() => {
+    if (!createRoundTxReceipt || !createRoundTxReceipt.logs) return;
+    for (const log of createRoundTxReceipt.logs) {
+      if (!log) continue;
+      try {
+        const { args } = decodeEventLog({
+          abi: BETCHA_ROUND_FACTORY_CONTRACT,
+          eventName: "BetchaRoundCreated",
+          topics: log.topics,
+          data: log.data,
+        });
+        return args.deployedAddress;
+      } catch (err) {
+        continue;
+      }
+    }
+  }, [createRoundTxReceipt]);
+  useEffect(() => {
+    if (!deployedAddress) return;
+    nav(`/bet/${deployedAddress}`);
+  }, [deployedAddress]);
 
   const handleDate = (date: any) => {
     const unixTimestamp = new Date(date).getTime();
