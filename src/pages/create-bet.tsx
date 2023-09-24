@@ -28,9 +28,10 @@ import {
 } from "wagmi";
 import config from "../config";
 import { BETCHA_ROUND_FACTORY_CONTRACT } from "../abis/BetchaRoundFactory";
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 import { useNavigate } from "react-router-dom";
 import { Web3Storage } from "web3.storage";
+import { parseUnits } from "viem";
 
 const CreateBet: React.FC = () => {
   const { address } = useAccount();
@@ -79,11 +80,11 @@ const CreateBet: React.FC = () => {
     args: [
       crypto as `0x${string}`,
       amount
-        ? ethers.utils.parseUnits(amount, tokenDecimals ?? 0)
-        : ethers.utils.parseUnits("0", tokenDecimals ?? 0),
+        ? parseUnits(amount, (tokenDecimals as number) ?? 0)
+        : parseUnits("0", (tokenDecimals as number) ?? 0),
       [address!],
-      BigNumber.from(Math.floor(Date.now() / 1000) + Number(timeToBet) * 60),
-      BigNumber.from(Math.floor(dateTime / 1000)),
+      BigInt(Math.floor(Date.now() / 1000) + Number(timeToBet) * 60),
+      BigInt(Math.floor(dateTime / 1000)),
       ipfsUrl,
     ],
     enabled: Boolean(
@@ -176,9 +177,7 @@ const CreateBet: React.FC = () => {
                       placeholder="Select crypto"
                       value={crypto}
                       onChange={(e) => setCrypto(e.target.value)}>
-                      <option value={ethers.constants.AddressZero}>
-                        Ethereum
-                      </option>
+                      <option value={ethers.ZeroAddress}>Ethereum</option>
                       <option value="0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA">
                         USDC
                       </option>

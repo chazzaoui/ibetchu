@@ -1,4 +1,4 @@
-import { utils } from "ethers";
+import { getAddress as getAddressUtil } from "viem";
 import { ALLOWED_ENS_SUFFIXES, ALLOWED_UNS_SUFFIXES } from "./constants";
 
 export const truncate = (str: string | undefined, length: number): string => {
@@ -128,7 +128,7 @@ export const shortAddress = (addr: string): string =>
 export const getAddress = (conversationTopic: string) => {
   let addr;
   try {
-    addr = utils.getAddress(conversationTopic);
+    addr = getAddressUtil(conversationTopic);
   } catch {
     addr = conversationTopic;
   }

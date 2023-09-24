@@ -1,3 +1,4 @@
+import React from "react";
 import { OnboardingStep } from "../../components/OnboardingStep/OnboardingStep";
 
 interface OnboardingPageProps {
