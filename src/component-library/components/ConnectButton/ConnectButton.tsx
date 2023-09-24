@@ -10,8 +10,6 @@ const ConnectButton = () => {
 
   useEffect(() => {
     if (!activeWallet) return;
-    activeWallet?.switchChain(8453);
-    console.log(activeWallet);
   }, [activeWallet]);
 
   if (!ready) return null;
