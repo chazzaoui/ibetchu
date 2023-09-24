@@ -55,6 +55,11 @@ export const BETCHA_ROUND_FACTORY_CONTRACT = [
         name: "settlementAvailableAt",
         type: "uint256",
       },
+      {
+        internalType: "string",
+        name: "metadataURI",
+        type: "string",
+      },
     ],
     name: "createRound",
     outputs: [

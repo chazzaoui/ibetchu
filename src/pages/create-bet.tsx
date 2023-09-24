@@ -29,14 +29,17 @@ import config from "../config";
 import { BETCHA_ROUND_FACTORY_CONTRACT } from "../abis/BetchaRoundFactory";
 import { BigNumber, ethers } from "ethers";
 import { useNavigate } from "react-router-dom";
+import { Web3Storage } from "web3.storage";
 
 const CreateBet: React.FC = () => {
   const [amount, setAmount] = useState("");
   const [crypto, setCrypto] = useState("");
   const [betDescription, setBetDescription] = useState("");
   const [dateTime, setDateTime] = useState(Date.now());
+  const [stringTime, setStringTime] = useState("");
   const [timeToBet, setTimeToBet] = useState("");
   const [settler, setSettler] = useState("");
+  const [ipfsUrl, setIpfsUrl] = useState("");
   const nav = useNavigate();
   const {
     data: tokenInfo,
@@ -70,8 +73,9 @@ const CreateBet: React.FC = () => {
         ? ethers.utils.parseUnits(amount, tokenDecimals ?? 0)
         : ethers.utils.parseUnits("0", tokenDecimals ?? 0),
       [address!],
-      BigNumber.from(Date.now() + timeToBet),
+      BigNumber.from(Date.now() + Number(timeToBet) * 60),
       BigNumber.from(dateTime),
+      ipfsUrl,
     ],
     enabled: Boolean(
       amount &&
@@ -101,11 +105,11 @@ const CreateBet: React.FC = () => {
 
   const handleDate = (date: any) => {
     const unixTimestamp = new Date(date).getTime() / 1000;
-    console.log(unixTimestamp);
-    setDateTime(unixTimestamp);
+    console.log(Math.round(unixTimestamp));
+    setDateTime(Math.round(unixTimestamp));
   };
 
-  const handleCreateBet = () => {
+  const handleCreateBet = async () => {
     // Log the values or send them to an API for further processing
     console.log({
       amount,
@@ -115,9 +119,18 @@ const CreateBet: React.FC = () => {
       timeToBet,
       settler,
     });
+    const web3Storage = new Web3Storage({
+      token: import.meta.env.VITE_WEB3_STORAGE_TOKEN,
+    });
+    const file = new File([betDescription], "betDescription.txt", {
+      type: "text/plain",
+    });
+    const cid = await web3Storage.put([file], { wrapWithDirectory: false });
+    const url = `https://ipfs.io/ipfs/${cid}`;
+    setIpfsUrl(url);
     createRound?.();
   };
-
+  console.log({ error, wth });
   return (
     <Flex
       padding={4}
@@ -206,7 +219,7 @@ const CreateBet: React.FC = () => {
                   <FormLabel>Who Will Settle It</FormLabel>
                   <Input
                     placeholder="Enter settler"
-                    value={settler}
+                    value={settler || address}
                     onChange={(e) => setSettler(e.target.value)}
                   />
                 </FormControl>
@@ -217,16 +230,16 @@ const CreateBet: React.FC = () => {
                   rounded={"full"}
                   width={"100%"}
                   isLoading={isWriting || isLoading}
-                  disabled={
-                    isWriting ||
-                    isLoading ||
-                    !amount ||
-                    !settler ||
-                    !timeToBet ||
-                    !dateTime ||
-                    !crypto ||
-                    !tokenInfo?.decimals
-                  }
+                  // disabled={
+                  //   isWriting ||
+                  //   isLoading ||
+                  //   !amount ||
+                  //   !settler ||
+                  //   !timeToBet ||
+                  //   !dateTime ||
+                  //   !crypto ||
+                  //   !tokenInfo?.decimals
+                  // }
                   colorScheme="blue">
                   Create Bet
                 </Button>
